@@ -1,0 +1,49 @@
+{
+  "name": "dsWork",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "front:serve": "vue-cli-service serve --port 8081",
+    "front:build": "vue-cli-service build",
+    "ext:watch": "parcel watch ./extensions/*.js --public-url / --target browser --out-dir dist --no-hmr --no-cache",
+    "ext:build": "parcel build ./extensions/*.js --public-url / --target browser --out-dir dist --detailed-report --no-content-hash --no-source-maps --no-cache",
+    "build": "yarn front:build && yarn ext:build"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "cheerio": "^1.0.0-rc.3",
+    "core-js": "^2.6.5",
+    "dayjs": "^1.8.17",
+    "element-ui": "^2.6.3",
+    "emailjs": "^2.2.0",
+    "jquery": "^3.4.1",
+    "js-md5": "^0.7.3",
+    "less": "^3.10.3",
+    "less-loader": "^5.0.0",
+    "moment": "^2.24.0",
+    "nodemailer": "^6.3.1",
+    "object-to-formdata": "^2.1.2",
+    "parcel-bundler": "^1.12.4",
+    "qs": "^6.9.1",
+    "regenerator": "^0.14.2",
+    "superagent": "^5.1.1",
+    "vue": "^2.6.6",
+    "vue-router": "^3.0.2",
+    "vuex": "^3.1.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.5.0",
+    "@vue/cli-service": "^3.5.0",
+    "vue-template-compiler": "^2.5.21"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}

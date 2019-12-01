@@ -1,0 +1,2 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["email-index"],{"0a6c":function(n,e,t){"use strict";t.r(e);var i=function(){var n=this,e=n.$createElement,t=n._self._c||e;return t("div",{attrs:{id:"email-index"}},[n._v("\n\tComing Soon\n")])},a=[],c={name:"index"},o=c,u=(t("7ed3"),t("2877")),l=Object(u["a"])(o,i,a,!1,null,null,null);e["default"]=l.exports},"78a6":function(n,e,t){},"7ed3":function(n,e,t){"use strict";var i=t("78a6"),a=t.n(i);a.a}}]);
+//# sourceMappingURL=email-index.59e752b2.js.map
