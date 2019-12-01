@@ -34,6 +34,7 @@ build/Release
 
 # Dependency directories
 node_modules/
+nodeServer/node_modules/
 jspm_packages/
 
 # TypeScript v1 declaration files
@@ -57,7 +58,6 @@ typings/
 # dotenv environment variables file
 .env
 
-# next.js build output
-.next
 .idea/
 staticServer/
+dist/
