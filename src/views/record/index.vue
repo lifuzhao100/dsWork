@@ -3,7 +3,7 @@
 		<el-button
 			size="small"
 			type="primary"
-			@click="openAddDialog"
+			@click="openAddDialog()"
 		>
 			登记工时
 		</el-button>
@@ -17,6 +17,28 @@
 				:label="column.label"
 				:show-overflow-tooltip="column.overflow"
 			>
+			</el-table-column>
+			<el-table-column
+				label=""
+				width="125px"
+				class-name="operate"
+			>
+				<template slot-scope="prop">
+					<el-button
+						size="small"
+						type="warning"
+						@click="openAddDialog(prop.row)"
+					>
+						编辑
+					</el-button>
+					<el-button
+						size="small"
+						type="danger"
+						@click="deleteTimeEntry(prop.row)"
+					>
+						删除
+					</el-button>
+				</template>
 			</el-table-column>
 		</el-table>
 		<el-pagination
@@ -44,6 +66,7 @@
   import {timeEntriesUrl, filterUrl} from "../../config/constant";
   import qs from 'qs'
   import recordAdd from './parts/add'
+  import {mapState} from 'vuex'
 
   export default {
     name: "index",
@@ -93,10 +116,15 @@
         tableData: [],
         size: 10,
         total: 0,
-        loading: false
+        loading: false,
+        token: ''
       }
     },
     computed: {
+      ...mapState([
+        'isLogged',
+        'user'
+      ]),
       params() {
         let {page} = this.form
         return {
@@ -119,6 +147,13 @@
     },
     mounted() {
       this.search(1)
+      this.$bus.$on('record-refresh', returnToFirstPage => {
+        if (returnToFirstPage) {
+          this.search(1)
+        } else {
+          this.getList()
+        }
+      })
     },
     methods: {
       search(page) {
@@ -127,6 +162,9 @@
       },
       async getList() {
         this.loading = true
+        if (!this.isLogged) {
+          await this.$api.login(this.user)
+        }
         request.get(timeEntriesUrl)
           .query(qs.stringify(this.params, {arrayFormat: 'brackets'}))
           .end((err, res) => {
@@ -137,12 +175,15 @@
             if (!err) {
               let $ = cheerio.load(res.text)
               let pagination = $('.pagination')
+              this.token = $('[name=authenticity_token]').val()
               $('.items', pagination).text().replace(/[0-9]+(?=\))/, function ($1) {
-	              total = parseInt($1)
+                total = parseInt($1)
               })
               size = $('.selected', pagination).text()
               $('.time-entry', '.time-entries tbody').each((index, tr) => {
                 let item = {}
+                let id = $(tr).attr('id')
+                item.id = id.replace(/[^0-9]+/, '')
                 this.columns.forEach(column => {
                   let tds = $('.' + column.classes, tr)
                   item[column.classes] = tds.text()
@@ -155,11 +196,32 @@
             this.size = parseInt(size)
           })
       },
-      openAddDialog() {
-        this.$router.push({
-	        path: '/record/add'
-        })
-        // this.$bus.$emit('dialog_record-add')
+      openAddDialog(row) {
+        // this.$router.push({
+        //   path: '/record/add'
+        // })
+        this.$bus.$emit('dialog_record-add', row)
+      },
+      deleteTimeEntry(row) {
+        this.$confirm(`请确认删除 ${row.spent_on} ${row.hours} 小时 这次登记?`, '删除操作', {})
+          .then(async () => {
+            this.loading = true
+            let {success} = await this.$api.deleteTimeEntry(this.token, row.id)
+            if (!success) {
+              this.$message({
+                type: 'error',
+                message: '删除失败'
+              })
+            } else {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+            }
+            this.getList()
+          })
+          .catch(() => {
+          })
       }
     }
   }
@@ -167,6 +229,10 @@
 
 <style lang='less'>
 	#page-record {
-
+		.operate {
+			.cell {
+				padding: 0;
+			}
+		}
 	}
 </style>

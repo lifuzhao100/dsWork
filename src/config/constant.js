@@ -3,7 +3,10 @@
  * @Date: 2019-11-2019-11-27 23:49
  * @Project: dsWork
  */
-const baseUrl = process.env.NODE_ENV !== 'production' ? '/' : 'http://39.98.57.31:8585/'
+let baseUrl = 'http://39.98.57.31:8585/'
+if (process.env.NODE_ENV === 'development') {
+  baseUrl = '/'
+}
 // 登录接口地址
 export const loginUrl = baseUrl + 'redmine/login'
 
@@ -16,10 +19,13 @@ export const timeEntriesUrl = baseUrl + 'redmine/time_entries'
 export const timeEntriesNewUrl = baseUrl + 'redmine/time_entries/new'
 export const timeEntriesAddUrl = baseUrl + 'redmine/time_entries'
 
-export const actionsList = [{
-  label: '弹窗通知',
-  value: 'notification'
-}, {
-  label: '自动登记',
-  value: 'addTimeEntry'
-}]
+export const actionsList = [
+  {
+    label: '弹窗通知',
+    value: 'notification'
+  },
+//   {
+//   label: '自动登记',
+//   value: 'addTimeEntry'
+// }
+]

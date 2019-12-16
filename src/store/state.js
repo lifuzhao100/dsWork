@@ -6,6 +6,8 @@
 export default {
   loginLoading: false,
   isLogged: false,
+  userList: [],
   user: {},
-  allScheduleList: []
+  allScheduleList: [],
+  cookieMap:{}
 }

@@ -8,13 +8,14 @@ import App from './App.vue'
 import dayjs from "dayjs";
 import 'dayjs/locale/zh-cn'
 import email from 'emailjs'
+
 dayjs.locale('zh-cn')
 Vue.use(ElementUI)
 Vue.config.productionTip = false
 
 async function start() {
   await store.dispatch('initStore')
-  const vm = new Vue({
+  window.vm = new Vue({
     render: h => h(App),
     router: router,
     store: store
@@ -22,6 +23,6 @@ async function start() {
 }
 
 start().then(() => {
-  console.log('start')
+  console.log('欢迎使用工时管理插件')
 })
 

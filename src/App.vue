@@ -15,7 +15,7 @@
 				</el-menu>
 				<div class="user">
 					<span class="username" @click="$router.push({path:'/login'})">{{user.username | computedUser}}</span>
-					<a class="github" href="" target="_blank">
+					<a class="github" href="https://github.com/lifuzhao100/dsWork" target="_blank">
 						<svg class="octicon octicon-mark-github v-align-middle" height="32" viewBox="0 0 16 16" version="1.1"
 						     width="32" aria-hidden="true">
 							<path fill-rule="evenodd"
@@ -67,7 +67,6 @@
         immediate: true,
         handler({path}) {
           let match = path.match(/\/[a-z]+/i)
-          console.log('match', match)
           if (match) {
             this.activeTab = match[0]
           }
@@ -109,7 +108,7 @@
 			background-color: #001529;
 
 			.header {
-				max-width: 1000px;
+				max-width: 1200px;
 				margin: 0 auto;
 				display: flex;
 				align-items: center;
@@ -154,7 +153,7 @@
 
 			.el-page-header, .page-container {
 				width: 100%;
-				max-width: 1000px;
+				max-width: 1200px;
 				margin: 0 auto;
 			}
 

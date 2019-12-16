@@ -1,9 +1,0 @@
-{
-  "name": "server4dsWork",
-  "version": "1.0.0",
-  "description": "server writed on nodejs",
-  "main": "index.js",
-  "author": "lifuzhao100",
-  "license": "MIT",
-  "private": true
-}

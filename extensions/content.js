@@ -4,6 +4,7 @@ import './content.css'
 
 let countAtSameTime = 0,
   notificationHandler = null
+let page = chrome.runtime.getURL('./index.html')
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   let {type, data} = message
   switch (type) {
@@ -36,8 +37,10 @@ function notify(data, callback) {
             message: '关闭该条通知'
           }
         })
+      },
+      onClick: () => {
+        window.open(page + '#/record/add', '_blank')
       }
     })
   }, 0)
-  
 }

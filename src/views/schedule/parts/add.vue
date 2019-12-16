@@ -17,33 +17,6 @@
 					size="small"
 					placeholder="名称"></el-input>
 			</el-form-item>
-			<el-form-item label="日期" prop="dates">
-				<el-select
-					v-model="form.dates"
-					multiple
-					collapse-tags
-					size="small"
-					placeholder="日期">
-					<el-option
-						v-for="item in dateList"
-						:key="item.value"
-						:label="item.label"
-						:value="item.value">
-						<span style="float: left">{{ item.label }}</span>
-						<span style="float: right; color: #8492a6; font-size: 13px;margin-right: 20px">{{ item.day }}</span>
-					</el-option>
-				</el-select>
-				<div class="tag-container">
-					<el-tag
-						v-for="(date, index) in form.dates"
-						:key="date"
-						type="warning"
-						closable
-						@close="deleteDate(index)"
-					>{{date}}
-					</el-tag>
-				</div>
-			</el-form-item>
 			<el-form-item label="时间" prop="time">
 				<el-time-select
 					v-model="form.time"
@@ -141,7 +114,6 @@
         configTableData: [],
         rules: {
           name: [{required: true, message: '请输入名称'}],
-          dates: [{required: true, message: '请选择日期'}],
           time: [{required: true, message: '请选择时间'}]
         },
         form: this.getDefaultForm(),
@@ -192,7 +164,6 @@
               }
             }
             this.dateList = dateList
-            this.form.dates = dateList.filter(item => !item.isWeekend).map(item => item.value)
           }
         }
       }
@@ -206,13 +177,9 @@
       getDefaultForm() {
         return {
           name: '',
-          dates: [],
           time: '18:30',
           actions: actionsList.map(action => action.value)
         }
-      },
-      deleteDate(index) {
-        this.form.dates.splice(index, 1)
       },
       updateTimeEntryConfig(config) {
         this.configTableData = [config]

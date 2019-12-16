@@ -30,15 +30,6 @@
 			>
 			</el-table-column>
 			<el-table-column
-				prop="dates"
-				label="日期"
-				:show-overflow-tooltip="true"
-			>
-				<template slot-scope="prop">
-					<span>{{prop.row.dates | computedDates}}</span>
-				</template>
-			</el-table-column>
-			<el-table-column
 				prop="time"
 				label="时间"
 			>
@@ -104,9 +95,6 @@
           label: '名称',
           key: 'name'
         }, {
-          label: '日期',
-          key: 'dates'
-        }, {
           label: '时间',
           key: 'time'
         }, {
@@ -162,9 +150,6 @@
       }
     },
     filters: {
-      computedDates(dates) {
-        return dates.join(',')
-      },
       computedActions(actions) {
         return actionsList.filter(action => actions.includes(action.value)).map(action => action.label).join(',')
       }

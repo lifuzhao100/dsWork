@@ -2,6 +2,7 @@ import dayjs from "dayjs"
 import 'babel-polyfill'
 import storage from "../src/plugins/storage";
 import api from '../src/plugins/api'
+import request from 'superagent'
 
 function open() {
   let index = chrome.runtime.getURL('./index.html')
@@ -14,13 +15,12 @@ chrome.browserAction.onClicked.addListener(open)
 
 // storage更新时调用
 chrome.storage.onChanged.addListener(async (changes, namespace) => {
-  console.log('changes', changes)
-  console.log('namespace', namespace)
   await buildSchedule()
 })
 const timersMap = {}
 
 async function buildSchedule() {
+  const dates = await updateWorkDays()
   let allScheduleList = await storage.getItem({key: 'allScheduleList', defaultValue: []})
   Object.keys(timersMap).forEach(timerKey => {
     clearTimeout(timerKey)
@@ -29,7 +29,7 @@ async function buildSchedule() {
   let notificationList = [],
     addTimeEntryList = []
   let now = dayjs()
-  allScheduleList.forEach(({id, dates, time, username, actions, config, operateHistoryList}) => {
+  allScheduleList.forEach(({id, time, username, actions, config, operateHistoryList = []}) => {
     let dateTimes = dates.map(date => ({
       date: date,
       time: time,
@@ -57,7 +57,7 @@ async function buildSchedule() {
     }
   })
   buildNotificationSchedule(notificationList)
-  buildAddTimeEntrySchedule(addTimeEntryList)
+  // buildAddTimeEntrySchedule(addTimeEntryList)
 }
 
 function buildNotificationSchedule(list) {
@@ -99,6 +99,7 @@ function buildAddTimeEntrySchedule(list) {
 
 async function retry(fn, timeout) {
   let result = await fn()
+  console.log('action result', result)
   if (result.success) {
     return result
   }
@@ -182,6 +183,35 @@ async function addTimeEntry(config) {
     }
   })
 }
+
+const workdayMap = {}
+
+async function updateWorkDays() {
+  const year = dayjs().format('YYYY')
+  if (workdayMap[year]) return workdayMap[year]
+  return new Promise(resolve => {
+    request.get(`https://lifuzhao100.github.io/dsWork/${year}.json`)
+      .end((err, res) => {
+        let dates = []
+        if (Array.isArray(res.body)) {
+          let today = dayjs().startOf('day')
+          dates = res.body.filter(date => {
+            let item = dayjs(date, 'YYYY').endOf('day')
+            return today.isBefore(item)
+          })
+        }
+        workdayMap[year] = dates
+        resolve(dates)
+      })
+  })
+}
+
+const now = dayjs()
+const nextYear = dayjs().add(1, 'year').startOf('year')
+
+setTimeout(() => {
+  updateWorkDays()
+}, nextYear.toDate().getTime() - now.toDate().getTime())
 
 buildSchedule().then(() => {
   console.log('单纯想调用 then')

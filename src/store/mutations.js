@@ -10,10 +10,18 @@ export default {
   updateIsLogged(state, isLogged) {
     state.isLogged = isLogged
   },
+  updateUserList(state, userList) {
+    state.userList = userList
+  },
   updateUser(state, user) {
     state.user = user
   },
   updateAllScheduleList(state, allScheduleList) {
     state.allScheduleList = allScheduleList
+  },
+  updateCookieMap(state, {username, cookie}) {
+    let cookieMap = state.cookieMap
+    cookieMap[username] = cookie
+    state.cookieMap = cookieMap
   }
 }

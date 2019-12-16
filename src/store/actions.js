@@ -5,9 +5,23 @@
  */
 import storage from '../plugins/storage'
 
+const initScheduleList = [{
+  "name": "默认下班前提醒",
+  "time": "18:00",
+  "actions": ["notification"],
+  "username": "fuzhao@datastory.com.cn",
+  "id": "2"
+}, {
+  "name": "默认上班后提醒",
+  "time": "10:15",
+  "actions": ["notification"],
+  "username": "fuzhao@datastory.com.cn",
+  "id": "1"
+}]
+
 export default {
   async initStore({commit}) {
-    let storageResult = await storage.getItems([
+    let {user, allScheduleList} = await storage.getItems([
       {
         key: 'user',
         defaultValue: {}
@@ -16,16 +30,36 @@ export default {
         defaultValue: []
       }]
     )
-    console.log('initStore')
-    console.log('storageResult', storageResult)
-    commit('updateAllScheduleList', storageResult.allScheduleList)
-    commit('updateUser', storageResult.user)
+    commit('updateAllScheduleList', allScheduleList)
+    commit('updateUser', user)
   },
   async saveUser({commit}, payload) {
-    await storage.setItems({
-      user: payload,
-      isLogged: true
-    })
+    let {userList, allScheduleList} = await storage.getItems([
+      {
+        key: 'userList',
+        defaultValue: []
+      },
+      {
+        key: 'allScheduleList',
+        defaultValue: []
+      }
+    ])
+    let isInit = userList.findIndex(user => user.username === payload.username) !== -1 && allScheduleList.findIndex(schedule => schedule.username === payload.username) !== -1
+    let data = {
+      user: payload
+    }
+    if (!isInit) {
+      initScheduleList.forEach(schedule => {
+        schedule.username = payload.username
+      })
+      allScheduleList = initScheduleList.concat(allScheduleList)
+      data.allScheduleList = allScheduleList
+      data.userList = userList.push(payload)
+    }
+    await storage.setItems(data)
+    if (!isInit) {
+      commit('updateAllScheduleList', allScheduleList)
+    }
     commit('updateUser', payload)
     commit('updateIsLogged', true)
   },
@@ -60,13 +94,16 @@ export default {
     commit('updateAllScheduleList', allScheduleList)
   },
   async deleteAllSchedule({commit}) {
-    let storageResult = await storage.getItems([{key: 'user', defaultValue: {}}, {
-      key: 'allScheduleList',
-      defaultValue: []
-    }])
-    let user = storageResult.user,
-      allScheduleList = storageResult.allScheduleList
-    allScheduleList = allScheduleList.filter(schedule => schedule.username === user.username)
+    let {user, allScheduleList} = await storage.getItems([
+      {
+        key: 'user',
+        defaultValue: {}
+      },
+      {
+        key: 'allScheduleList',
+        defaultValue: []
+      }])
+    allScheduleList = allScheduleList.filter(schedule => schedule.username !== user.username)
     await storage.setItem('allScheduleList', allScheduleList)
     commit('updateAllScheduleList', allScheduleList)
   },

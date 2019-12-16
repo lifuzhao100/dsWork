@@ -11,7 +11,10 @@
    * @Project: dsWork
    */
   export default {
-    name: "index"
+    name: "index",
+    data() {
+      return {}
+    }
   }
 </script>
 

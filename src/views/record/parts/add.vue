@@ -92,12 +92,19 @@
 		    size="small"
 		    @click="dialogVisible = false"
 	    >
-		    取消
+		    关闭
+	    </el-button>
+			<el-button
+				size="small"
+				type="warning"
+				@click="addTimeEntry(true)"
+			>
+		    再记一条
 	    </el-button>
 	    <el-button
 		    size="small"
 		    type="primary"
-		    @click="addTimeEntry"
+		    @click="addTimeEntry(false)"
 	    >
 		    确定
 	    </el-button>
@@ -128,7 +135,8 @@
         projectList: [],
         activitiesList: [],
         token: '',
-        form: this.getDefaultForm()
+        form: this.getDefaultForm(),
+        id: ''
       }
     },
     computed: {
@@ -155,13 +163,7 @@
         immediate: true,
         async handler(flag) {
           if (!flag) return
-          this.toggleLoading(true, 'loading...')
-          let {success, token, projectList, activitiesList} = await this.$api.getTimeEntriesNew()
-          this.toggleLoading(false)
-          if (!success) return
-          this.token = token
-          this.projectList = projectList
-          this.activitiesList = activitiesList
+          this.getTimeEntriesNew()
         }
       }
     },
@@ -173,7 +175,38 @@
             this.form[key] = result[key]
           })
         })
-      this.$bus.$on('dialog_record-add', () => {
+      this.$bus.$on('dialog_record-add', (row) => {
+        let form = this.getDefaultForm()
+        if (row) {
+          this.$nextTick(async () => {
+            await this.getTimeEntriesNew()
+            Object.keys(form).forEach(key => {
+              form[key] = row[key]
+            })
+            let projectList = this.projectList,
+              activitiesList = this.activitiesList
+            projectList.find(project => {
+              if (project.label === row.project) {
+                form.project_id = project.value
+                return true
+              }
+              return false
+            })
+            activitiesList.find(activity => {
+              if (activity.label === row.activity) {
+                form.activity_id = activity.value
+                return true
+              }
+              return false
+            })
+            this.form = form
+          })
+
+          this.id = row.id
+        } else {
+          this.id = ''
+          this.form = form
+        }
         this.dialogVisible = true
       })
     },
@@ -187,6 +220,19 @@
           comments: '',
           activity_id: ''
         }
+      },
+      async getTimeEntriesNew() {
+        this.toggleLoading(true, 'loading...')
+        if (!this.getTimeEntriesNewPromise) {
+          this.getTimeEntriesNewPromise = this.$api.getTimeEntriesNew()
+        }
+        let {success, token, projectList, activitiesList} = await this.getTimeEntriesNewPromise
+        this.toggleLoading(false)
+        this.getTimeEntriesNewPromise = null
+        if (!success) return
+        this.token = token
+        this.projectList = projectList
+        this.activitiesList = activitiesList
       },
       beforeClose() {
         let {params} = this.$route
@@ -204,7 +250,7 @@
       selectActivity(id) {
         this.$storage.setItem('activity_id', id)
       },
-      addTimeEntry() {
+      addTimeEntry(oneMore) {
         this.$refs.form.validate(async valid => {
           if (!valid) return
           if (this.isNested) {
@@ -227,7 +273,7 @@
               authenticity_token: this.token
             }
             this.toggleLoading(true, '提交中...')
-            let {success, message} = await this.$api.addTimeEntry(params)
+            let {success, message} = await this.$api.addTimeEntry(params, this.id)
             this.toggleLoading(false)
             if (!success) {
               this.$message({
@@ -239,19 +285,27 @@
                 type: 'success',
                 message: '登记成功'
               })
-              this.beforeClose()
+              this.$bus.$emit('record-refresh', !this.id)
+	            if (oneMore){
+	              this.getTimeEntriesNew()
+	            }else{
+                this.beforeClose()
+	            }
             }
           }
         })
       },
       toggleLoading(flag, text) {
         if (flag) {
-          this.loadingInstance = Loading.service({
-            target: '#record-add .el-dialog',
-            text: text
-          })
+          if (!this.loadingInstance) {
+            this.loadingInstance = Loading.service({
+              target: '#record-add .el-dialog',
+              text: text
+            })
+          }
         } else {
           this.loadingInstance && this.loadingInstance.close()
+          this.loadingInstance = null
         }
       }
     }
