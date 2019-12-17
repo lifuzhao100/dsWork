@@ -62,6 +62,7 @@ async function buildSchedule() {
 
 function buildNotificationSchedule(list) {
   list.forEach(({id, timerKey, timeout, username}) => {
+    console.log('buildNotificationSchedule timeout', timeout)
     let data = {
       type: 'notification',
       data: {
